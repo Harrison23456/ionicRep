@@ -1,0 +1,23 @@
+<ion-menu contentId="main-content">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Menú</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <ion-list>
+      <ion-item routerLink="/dni-scanner" routerDirection="forward">
+        <ion-icon slot="start" name="barcode-outline"></ion-icon>
+        <ion-label>Escaneo de código de barras</ion-label>
+      </ion-item>
+
+      <ion-item routerLink="/dni-identification" routerDirection="forward">
+        <ion-icon slot="start" name="document-outline"></ion-icon>
+        <ion-label>Escaneo del DNI completo</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<ion-router-outlet id="main-content"></ion-router-outlet>

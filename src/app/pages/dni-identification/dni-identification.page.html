@@ -1,0 +1,23 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Escanear DNI</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="container">
+    <ion-button expand="block" (click)="captureImage()">
+      Capturar Imagen del DNI
+    </ion-button>
+
+    <div *ngIf="dniNumber" class="result">
+      <h2>Número de DNI Detectado:</h2>
+      <p>{{ dniNumber }}</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="error">
+      <h2>Error:</h2>
+      <p>{{ errorMessage }}</p>
+    </div>
+  </div>
+</ion-content>

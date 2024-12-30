@@ -1,0 +1,7 @@
+{
+  "name": "DNI Scanner",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

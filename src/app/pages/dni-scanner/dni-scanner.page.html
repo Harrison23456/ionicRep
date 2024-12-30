@@ -1,0 +1,16 @@
+<ion-header>
+    <ion-toolbar>
+      <ion-title>Escáner DNI</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  
+  <ion-content class="ion-padding">
+    <ion-button expand="full" (click)="scanBarcode()">Escanear DNI</ion-button>
+  
+    <div *ngIf="scannedDni !== null" class="result">
+      <h2>Resultado del escaneo:</h2>
+      <p *ngIf="scannedDni">{{ scannedDni }}</p>
+      <p *ngIf="!scannedDni">No se encontró un DNI válido.</p>
+    </div>
+  </ion-content>
+  
