@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Obtener Android ID
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="ion-padding">
+    <ion-button (click)="getAndroidId()">Obtener Android ID</ion-button>
+    <div *ngIf="androidId">
+      <p><strong>Android ID:</strong> {{ androidId }}</p>
+    </div>
+    <div *ngIf="errorMessage" class="error-message">
+      <p><strong>Error:</strong> {{ errorMessage }}</p>
+    </div>
+  </div>
+</ion-content>

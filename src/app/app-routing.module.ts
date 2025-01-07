@@ -5,7 +5,7 @@ import { authGuard } from './guards/auth.guard';
 const routes: Routes = [
   {
     path: '',
-    loadChildren: () => import('./pages/menu/menu.module').then( m => m.MenuPageModule)
+    loadChildren: () => import('./pages/login/login.module').then( m => m.LoginPageModule)
     },
   {
     path: 'login',
@@ -26,6 +26,18 @@ const routes: Routes = [
   {
     path: 'menu',
     loadChildren: () => import('./pages/menu/menu.module').then( m => m.MenuPageModule)
+  },
+  {
+    path: 'imei',
+    loadChildren: () => import('./pages/imei/imei.module').then( m => m.ImeiPageModule)
+  },
+  {
+    path: 'test',
+    loadChildren: () => import('./pages/test/test.module').then( m => m.TestPageModule)
+  },
+  {
+    path: 'dni-manualsearch',
+    loadChildren: () => import('./pages/dni-manualsearch/dni-manualsearch.module').then( m => m.DniManualsearchPageModule)
   }
 ];
 @NgModule({

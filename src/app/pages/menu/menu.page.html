@@ -1,23 +1,30 @@
-<ion-menu contentId="main-content">
-  <ion-header>
-    <ion-toolbar>
-      <ion-title>Menú</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Menú</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-  <ion-content>
-    <ion-list>
-      <ion-item routerLink="/dni-scanner" routerDirection="forward">
-        <ion-icon slot="start" name="barcode-outline"></ion-icon>
-        <ion-label>Escaneo de código de barras</ion-label>
-      </ion-item>
+<ion-content class="ion-padding">
+  <div class="logo-container">
+    <ion-img src="assets/logo.png" alt="Logo"></ion-img>
+  </div>
 
-      <ion-item routerLink="/dni-identification" routerDirection="forward">
-        <ion-icon slot="start" name="document-outline"></ion-icon>
-        <ion-label>Escaneo del DNI completo</ion-label>
-      </ion-item>
-    </ion-list>
-  </ion-content>
-</ion-menu>
+  <div class="menu-buttons">
+    <ion-button expand="block" color="primary" routerLink="/dni-scanner">
+      <ion-icon slot="start" name="barcode-outline"></ion-icon>
+      Escaneo de código de barras
+    </ion-button>
 
-<ion-router-outlet id="main-content"></ion-router-outlet>
+    <ion-button expand="block" color="secondary" routerLink="/dni-identification">
+      <ion-icon slot="start" name="document-outline"></ion-icon>
+      Escaneo del DNI completo
+    </ion-button>
+
+    <ion-button expand="block" color="tertiary" routerLink="/dni-manualsearch">
+      <ion-icon slot="start" name="search-outline"></ion-icon>
+      Buscar DNI manualmente
+    </ion-button>
+  </div>
+</ion-content>
+
+

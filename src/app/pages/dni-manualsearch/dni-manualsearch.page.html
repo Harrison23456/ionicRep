@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Buscar DNI</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form (submit)="searchDni()">
+    <ion-item>
+      <ion-label position="floating">DNI</ion-label>
+      <ion-input
+        type="text"
+        maxlength="8"
+        [(ngModel)]="dni"
+        name="dni"
+        required
+      ></ion-input>
+    </ion-item>
+    <ion-button expand="block" type="submit">Buscar</ion-button>
+  </form>
+
+  <ion-card *ngIf="result">
+    <ion-card-header>
+      <ion-card-title>Resultado</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Nombres:</strong> {{ result.nombres }}</p>
+      <p><strong>Apellido Paterno:</strong> {{ result.apellidoPaterno }}</p>
+      <p><strong>Apellido Materno:</strong> {{ result.apellidoMaterno }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-alert
+  *ngIf="errorMessage"
+  header="Error"
+  [message]="errorMessage"
+  [buttons]="['OK']"
+  (didDismiss)="errorMessage = ''"
+></ion-alert>
+
+</ion-content>
