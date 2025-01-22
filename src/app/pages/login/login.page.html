@@ -17,7 +17,10 @@
           <ion-input type="password" [(ngModel)]="passwordmobile" name="passwordmobile"></ion-input>
         </ion-item>
         <ion-button expand="block" type="submit">Iniciar sesión</ion-button>
-
+        <ion-item lines="none">
+          <ion-label>Recordarme</ion-label>
+          <ion-checkbox [(ngModel)]="rememberMe" slot="start"></ion-checkbox>
+        </ion-item>
         <p><strong>Android ID:</strong> {{ androidId }}</p>
 
       </form>

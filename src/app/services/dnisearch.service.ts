@@ -22,4 +22,8 @@ export class DnisearchService {
       })
     );
   }
+
+  guardarConsulta(datos: any): Observable<any> {
+    return this.http.post(`${this.API_URL}/registrarconsulta`, datos);
+  }
 }

@@ -10,14 +10,33 @@
       Capturar Imagen del DNI
     </ion-button>
 
+    <!-- Spinner de carga -->
+    <ion-spinner *ngIf="isLoading" name="dots" class="loading-spinner"></ion-spinner>
+
+    <!-- Mostrar número de DNI detectado -->
     <div *ngIf="dniNumber" class="result">
       <h2>Número de DNI Detectado:</h2>
       <p>{{ dniNumber }}</p>
     </div>
 
+    <!-- Mostrar mensaje de error -->
     <div *ngIf="errorMessage" class="error">
       <h2>Error:</h2>
       <p>{{ errorMessage }}</p>
     </div>
+
+    <!-- Mostrar datos del DNI -->
+    <div *ngIf="result" class="dni-details">
+      <h2>Detalles del DNI:</h2>
+      <p><strong>Nombre:</strong> {{ result.nombres }}</p>
+      <p><strong>Apellido:</strong> {{ result.apellidoPaterno }}</p>
+      <p><strong>Apellido Materno:</strong> {{ result.apellidoMaterno }}</p>
+      <!-- Agrega más campos según los datos que obtengas de la API -->
+    </div>
   </div>
+
+  <div *ngIf="comparisonMessage" class="comparison-result">
+    <p><strong>{{comparisonMessage}}</strong></p>
+  </div>
+  
 </ion-content>

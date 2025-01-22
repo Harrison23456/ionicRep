@@ -24,7 +24,7 @@ const routes: Routes = [
     loadChildren: () => import('./pages/dni-identification/dni-identification.module').then( m => m.DniIdentificationPageModule)
   },
   {
-    path: 'menu',
+    path: 'menu', canActivate: [authGuard],
     loadChildren: () => import('./pages/menu/menu.module').then( m => m.MenuPageModule)
   },
   {

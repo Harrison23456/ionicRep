@@ -16,3 +16,28 @@
     gap: 1rem; /* Espacio entre botones */
   }
   
+  .footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    background-color: #f8f9fa; /* Color opcional para el fondo */
+    color: #6c757d; /* Color opcional para el texto */
+    border-top: 1px solid #ddd; /* Línea opcional para separar */
+  }
+
+  .menu-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  
+  .logout-container {
+    position: absolute; /* Fija el botón en relación al contenedor */
+    bottom: 60px; /* Espacio sobre el footer */
+    width: 100%;
+
+}

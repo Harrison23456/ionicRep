@@ -19,13 +19,40 @@ export class AuthService {
    * @param passwordmobile Contraseña móvil.
    * @returns Observable con la respuesta del servidor.
    */
-  login(usermobile: string, passwordmobile: string): Observable<any> {
+  login(usermobile?: string, passwordmobile?: string, imei?: string): Observable<any> {
     const url = `${this.apiUrl}/login`;
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    const body = { usermobile, passwordmobile };
-
+  
+    // Construir dinámicamente el cuerpo de la solicitud según los parámetros proporcionados
+    const body: any = {};
+    if (usermobile) body.usermobile = usermobile;
+    if (passwordmobile) body.passwordmobile = passwordmobile;
+    if (imei) body.imei = imei;
+  
     console.log('Enviando solicitud de login:', body);
-
+  
     return this.http.post(url, body, { headers });
+  }
+  
+  loginWithImei(imei: string): Observable<any> {
+    const url = `${this.apiUrl}/login`;
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const body = { imei };
+  
+    console.log('Enviando solicitud de login con Android ID:', body);
+  
+    return this.http.post(url, body, { headers });
+  }
+  
+
+  getCompany(userId: string, token: string): Observable<{ empresa: string }> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.get<{ empresa: string }>(`${this.apiUrl}/getCompany`, {
+      headers,
+      params: { id: userId }, // Pasar el ID como parámetro de consulta
+    });
   }
 }

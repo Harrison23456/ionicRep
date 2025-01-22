@@ -24,6 +24,22 @@
       <ion-icon slot="start" name="search-outline"></ion-icon>
       Buscar DNI manualmente
     </ion-button>
+
+    <div class="logout-container">
+      <ion-button expand="block" color="danger" (click)="confirmLogout()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        Cerrar sesión
+      </ion-button>
+    </div>
+
+    
+  </div>
+
+
+
+  
+  <div class="footer">
+    Bienvenido a <strong>{{ empresa || 'su empresa' }}</strong>
   </div>
 </ion-content>
 
