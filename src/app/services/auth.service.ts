@@ -27,9 +27,7 @@ export class AuthService {
     const body: any = {};
     if (usermobile) body.usermobile = usermobile;
     if (passwordmobile) body.passwordmobile = passwordmobile;
-    if (imei) body.imei = imei;
-  
-    console.log('Enviando solicitud de login:', body);
+    if (imei) body.androidId = imei;
   
     return this.http.post(url, body, { headers });
   }

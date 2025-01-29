@@ -14,16 +14,16 @@ const { AndroidId } = Plugins;
 export class LoginPage implements OnInit {
   usermobile: string = '';
   passwordmobile: string = '';
-  androidId: string | null = null;
+  androidId: any;
   errorMessage: string | null = null;
-  rememberMe: boolean = false; // Indica si el usuario quiere que se recuerden sus credenciales
+  errorMessageUser: string | null = null;
+  errorMessagePassword: string | null = null;
+  rememberMe: boolean = false;
 
   constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
 
   async ngOnInit() {
-    // Intentar cargar credenciales guardadas
     this.loadRememberedCredentials();
-
     try {
       const result = await AndroidId['getAndroidId']();
       console.log('Android ID:', result.androidId);
@@ -37,26 +37,51 @@ export class LoginPage implements OnInit {
   }
 
   login() {
-    console.log('Enviando datos de login:', { usermobile: this.usermobile, passwordmobile: this.passwordmobile });
-    this.authService.login(this.usermobile, this.passwordmobile).subscribe(
+    this.errorMessageUser = null;
+    this.errorMessagePassword = null;
+    this.errorMessage = null;
+
+    if (!this.usermobile.trim()) {
+      this.errorMessageUser = 'El campo Usuario no puede estar vacío.';
+    }
+    if (!this.passwordmobile.trim()) {
+      this.errorMessagePassword = 'El campo Contraseña no puede estar vacío.';
+    }
+
+    if (this.errorMessageUser || this.errorMessagePassword) {
+      return;
+    }
+
+    this.authService.login(this.usermobile, this.passwordmobile, this.androidId).subscribe(
       (response: any) => {
         console.log('Respuesta del servidor:', response);
-
-        // Almacenar token en localStorage
         localStorage.setItem('token', response.token);
-
-        // Si el usuario seleccionó "Recordarme", guardar credenciales
         if (this.rememberMe) {
           this.saveCredentials();
         } else {
           this.clearRememberedCredentials();
         }
-
         this.router.navigate(['/menu']);
       },
       (error) => {
         console.error('Login failed:', error);
-        this.errorMessage = 'Error en el inicio de sesión. Verifica tus credenciales o la conexión.';
+        if (error.status === 404) {
+          this.errorMessage = 'Usuario o empresa no encontrada.';
+        } else if (error.status === 400) {
+          this.errorMessage = 'Credenciales inválidas. Verifica tu usuario y contraseña.';
+        } else if (error.status === 403) {
+          if (error.error.error === 'La empresa está desactivada') {
+            this.errorMessage = 'La empresa está desactivada. Contacte al administrador.';
+          } else if (error.error.error === 'La fecha de expiración de la empresa ha pasado') {
+            this.errorMessage = 'La empresa ha expirado. Contacte al administrador.';
+          } else if (error.error.error === 'El dispositivo no está asociado a este usuario') {
+            this.errorMessage = 'Este dispositivo no está autorizado para este usuario.';
+          } else {
+            this.errorMessage = 'Acceso denegado. Verifica tus credenciales.';
+          }
+        } else {
+          this.errorMessage = 'Error en el inicio de sesión. Intenta nuevamente.';
+        }
       }
     );
   }
@@ -67,7 +92,6 @@ export class LoginPage implements OnInit {
       passwordmobile: this.passwordmobile,
     };
     localStorage.setItem('rememberedCredentials', JSON.stringify(credentials));
-    console.log('Credenciales guardadas:', credentials);
   }
 
   private loadRememberedCredentials() {
@@ -76,13 +100,11 @@ export class LoginPage implements OnInit {
       const parsedCredentials = JSON.parse(credentials);
       this.usermobile = parsedCredentials.usermobile || '';
       this.passwordmobile = parsedCredentials.passwordmobile || '';
-      this.rememberMe = true; // Marcar el checkbox de "Recordarme"
-      console.log('Credenciales cargadas:', parsedCredentials);
+      this.rememberMe = true;
     }
   }
 
   private clearRememberedCredentials() {
     localStorage.removeItem('rememberedCredentials');
-    console.log('Credenciales eliminadas');
   }
 }
