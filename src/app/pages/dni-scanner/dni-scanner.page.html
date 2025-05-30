@@ -1,34 +1,43 @@
 <ion-header>
-    <ion-toolbar>
-      <ion-title>Escáner DNI</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  
-  <ion-content class="ion-padding">
-    <ion-button expand="full" (click)="scanBarcode()">Escanear DNI</ion-button>
-  
-    <div *ngIf="scannedDni !== null" class="result">
-      <h2>Resultado del escaneo:</h2>
-      <p *ngIf="scannedDni">{{ scannedDni }}</p>
-      <p *ngIf="!scannedDni">No se encontró un DNI válido.</p>
+  <ion-toolbar>
+    <ion-title>Escáner DNI</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div *ngIf="scannedDni !== null">
+    <h2>Resultado del escaneo:</h2>
+    <p *ngIf="scannedDni">{{ scannedDni }}</p>
+    <p *ngIf="!scannedDni">No se encontró un DNI válido.</p>
+  </div>
+
+  <div *ngIf="scannedDni && !loading">
+    <h2>DNI Escaneado: {{ scannedDni }}</h2>
+
+    <div *ngIf="scannedData">
+      <h3>Datos del Titular:</h3>
+      <p class="texto-grande"><strong>Nombre:</strong> {{ scannedData.nombres }}</p>
+      <p class="texto-grande"><strong>Apellido Paterno:</strong> {{ scannedData.apellidoPaterno }}</p>
+      <p class="texto-grande"><strong>Apellido Materno:</strong> {{ scannedData.apellidoMaterno }}</p>
+      <img
+      *ngIf="imagenString" style="margin-top: 20px; text-align: center;"
+      [src]="'https://44.201.220.104.nip.io/api/' + imagenString.replace('\\', '/')"
+      alt="Foto del usuario"
+      style="max-width: 100%; height: auto; width: 300px;"
+      width="100"
+      />
     </div>
 
-    <div *ngIf="scannedDni && !loading">
-      <h2>DNI Escaneado: {{ scannedDni }}</h2>
-  
-      <div *ngIf="scannedData">
-        <h3>Datos del Titular:</h3>
-        <p><strong>Nombre:</strong> {{ scannedData.nombres }}</p>
-        <p><strong>Apellido Paterno:</strong> {{ scannedData.apellidoPaterno }}</p>
-        <p><strong>Apellido Materno:</strong> {{ scannedData.apellidoMaterno }}</p>
-      </div>
-  
-      <div *ngIf="errorMessage" class="error">
-        <p>{{ errorMessage }}</p>
-      </div>
+    <!-- Mostrar si es ludópata o no -->
+    <div class="texto-grande" *ngIf="ludopataMessage">
+      <p><strong>Ludópata:</strong> {{ ludopataMessage }}</p>
     </div>
 
-  </ion-content>
 
-  
-  
+    
+
+    <div *ngIf="errorMessage" class="error">
+      <p>{{ errorMessage }}</p>
+    </div>
+  </div>
+</ion-content>

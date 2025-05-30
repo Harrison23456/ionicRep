@@ -6,7 +6,8 @@ import { catchError, Observable, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class DnisearchService {
-  private API_URL = 'https://192.168.30.21:3000/api/mobileroute/dni';
+  private API_URL = 'https://44.201.220.104.nip.io/api/api/mobileroute/dni';
+  private baseUrl = 'https://44.201.220.104.nip.io/api/api/sala';
 
   constructor(private http: HttpClient) {}
 
@@ -14,6 +15,8 @@ export class DnisearchService {
     return this.http.get(`${this.API_URL}/${dni}`).pipe(
       catchError((error) => {
         // Tipamos error como any para manejar casos desconocidos
+        console.error('Error al consultar la API:', error); // 👈 Imprime el error completo
+
         const errorMessage =
           error.error?.message ||
           error.statusText ||
@@ -26,4 +29,19 @@ export class DnisearchService {
   guardarConsulta(datos: any): Observable<any> {
     return this.http.post(`${this.API_URL}/registrarconsulta`, datos);
   }
+
+  // Buscar si un DNI corresponde a un ludópata
+  buscarLudopata(dni: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/sololudopata/${dni}`);
+  }
+
+  buscarAgravio(dni: string): Observable<any> {
+    const token = localStorage.getItem('token');  // Asegúrate de que el token esté guardado en localStorage
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  
+    return this.http.get<any>(`${this.baseUrl}/soloagravio/${dni}`, { headers });
+  }
+  
+  
 }
+

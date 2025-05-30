@@ -10,10 +10,11 @@ import { Device } from '@awesome-cordova-plugins/device/ngx';
 import { LoginPage } from './pages/login/login.page';
 import { sSLInterceptorInterceptor } from './sslinterceptor.interceptor';
 import { tokenInterceptor } from './token.interceptor';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, HttpClientModule, IonicModule.forRoot(), AppRoutingModule],
+  imports: [BrowserModule, HttpClientModule, IonicModule.forRoot(), AppRoutingModule,ZXingScannerModule],
   providers: [AuthService, Device, { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: HTTP_INTERCEPTORS, useClass: sSLInterceptorInterceptor, multi: true },
     {

@@ -24,6 +24,7 @@ export class DniIdentificationPage implements OnInit {
   scannedNames: { firstName: string; lastName: string; middleName?: string } | null = null; // Nombres escaneados
   comparisonMessage: string | null = null; // Resultado de comparación
   cleanedText: any;
+  ludopataMessage: any;
 
   constructor(private dniService: DnisearchService) {}
 
@@ -63,11 +64,11 @@ export class DniIdentificationPage implements OnInit {
         logger: (info) => console.log(info),
       });
 
-      await worker.load();
-      await worker.loadLanguage('spa');
-      await worker.initialize('spa');
+      await (await worker).load();
+      await (await worker).loadLanguage('spa');
+      await (await worker).initialize('spa');
 
-      const { data } = await worker.recognize(imageData);
+      const { data } = await (await worker).recognize(imageData);
 
       console.log('Texto completo reconocido por Tesseract:', data.text);
 
@@ -89,7 +90,7 @@ export class DniIdentificationPage implements OnInit {
         }
       }
 
-      await worker.terminate();
+      await (await worker).terminate();
 
 
     } catch (error) {
@@ -207,6 +208,21 @@ export class DniIdentificationPage implements OnInit {
       await this.dniService.guardarConsulta(consulta).toPromise();
       console.log('Consulta guardada exitosamente.');
       this.errorMessage = null;
+
+              // Buscar si el DNI pertenece a un ludópata
+              this.dniService.buscarLudopata(dni).subscribe({
+                next: (response) => {
+                  console.log('Respuesta de buscarLudopata:', response); // Verifica la respuesta real de la API
+                  if (response.esLudopata) {
+                    this.ludopataMessage = '⚠️ ¡El usuario está registrado como ludópata!';
+                  } else {
+                    this.ludopataMessage = '✅ El usuario no está registrado como ludópata.';
+                  }
+                },
+                error: (error) => {
+                  console.error('Error al buscar ludópata:', error);
+                },
+              });
     } catch (error) {
       console.error('Error al buscar el DNI o guardar la consulta:', error);
       this.result = null;
@@ -254,6 +270,7 @@ export class DniIdentificationPage implements OnInit {
   
     console.log(this.comparisonMessage);
   }
+  
   
   
   private isValidDni(dni: string): boolean {

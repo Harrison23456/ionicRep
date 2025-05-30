@@ -1,5 +1,52 @@
-<div style="text-align:center;">
-  <h1>Conectar con el Backend</h1>
-  <button (click)="conectar()">Conectar</button>
-  <p>{{ message }}</p>
+<div *ngIf="loading" class="loading-overlay">
+  <p>🔍 Identificando DNI...</p>
+</div>
+
+
+<div *ngIf="!loading">
+  <div style="position: relative;">
+<video
+  #videoElement
+  [style.display]="cameraReady ? 'block' : 'none'"
+  autoplay
+  playsinline
+></video>
+    <canvas #overlayCanvas style="position: absolute; top: 0; left: 0;"></canvas>
+  </div>
+
+  <canvas #canvasElement style="display: none;"></canvas>
+
+  <div *ngIf="dni">
+    <h3>DNI Detectado:</h3>
+    <pre>{{ dni }}</pre>
+  </div>
+
+<div *ngIf="primerNombre || segundoNombre || apellidoPaterno">
+  <h3>Información Extraída:</h3>
+  <p class="texto-grande"><strong>Primer Nombre:</strong> {{ primerNombre }}</p>
+  <p *ngIf="segundoNombre" class="texto-grande"><strong>Segundo Nombre:</strong> {{ segundoNombre }}</p>
+  <p class="texto-grande"><strong>Apellido Paterno:</strong> {{ apellidoPaterno }}</p>
+
+  <img
+    *ngIf="imagenString"
+    [src]="'https://44.201.220.104.nip.io/api/' + imagenString.replace('\\', '/')"
+    alt="Foto del usuario"
+    style="margin-top: 20px; text-align: center; max-width: 100%; height: auto; width: 250px;"
+    width="100"
+  />
+</div>
+
+  <div *ngIf="nombresCoinciden !== null">
+    <h3>Verificación:</h3>
+    <p [ngClass]="nombresCoinciden ? 'success' : 'error'">
+      {{ nombresCoinciden ? '✅ Los nombres coinciden con la base de datos.' : '❌ Los nombres no coinciden.' }}
+    </p>
+  </div>
+
+  <div class="texto-grande" *ngIf="ludopataMessage">
+    <h3>Estado Ludópata:</h3>
+    <p [ngClass]="esLudopata ? 'error' : 'success'">{{ ludopataMessage }}</p>
+  </div>
+
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
 </div>

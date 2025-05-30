@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Plugins } from '@capacitor/core';
-import { timeout } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 const { AndroidId } = Plugins;
 
@@ -28,6 +27,7 @@ export class LoginPage implements OnInit {
       const result = await AndroidId['getAndroidId']();
       console.log('Android ID:', result.androidId);
       this.androidId = result.androidId;
+      localStorage.setItem('androidId', result.androidId); // 🔹 Guardamos el androidId para usarlo después
       this.errorMessage = null;
     } catch (error) {
       console.error('Error getting Android ID', error);
@@ -56,6 +56,8 @@ export class LoginPage implements OnInit {
       (response: any) => {
         console.log('Respuesta del servidor:', response);
         localStorage.setItem('token', response.token);
+        this.authService.startPinging();  // <-- Añade esta línea
+
         if (this.rememberMe) {
           this.saveCredentials();
         } else {

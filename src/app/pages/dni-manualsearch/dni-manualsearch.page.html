@@ -16,7 +16,9 @@
         required
       ></ion-input>
     </ion-item>
+
     <ion-button expand="block" type="submit">Buscar</ion-button>
+
   </form>
 
   <ion-card *ngIf="result">
@@ -24,18 +26,21 @@
       <ion-card-title>Resultado</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <p><strong>Nombres:</strong> {{ result.nombres }}</p>
-      <p><strong>Apellido Paterno:</strong> {{ result.apellidoPaterno }}</p>
-      <p><strong>Apellido Materno:</strong> {{ result.apellidoMaterno }}</p>
-    </ion-card-content>
+    <p class="texto-grande"><strong>Nombres:</strong> {{ result.nombres }}</p>
+    <p class="texto-grande"><strong>Apellido Paterno:</strong> {{ result.apellidoPaterno }}</p>
+    <p class="texto-grande"><strong>Apellido Materno:</strong> {{ result.apellidoMaterno }}</p>
+    <p class="texto-grande" *ngIf="ludopataMessage">{{ ludopataMessage }}</p>
+
+    <div *ngIf="imagenString" style="margin-top: 20px; text-align: center;">
+      <img
+        [src]="'https://44.201.220.104.nip.io/api/' + imagenString.replace('\\', '/')"
+        alt="Foto del usuario"
+        style="max-width: 100%; height: auto; width: 300px;"
+      />
+    </div>
+  </ion-card-content>
+
   </ion-card>
 
-  <ion-alert
-  *ngIf="errorMessage"
-  header="Error"
-  [message]="errorMessage"
-  [buttons]="['OK']"
-  (didDismiss)="errorMessage = ''"
-></ion-alert>
-
+  <ion-alert *ngIf="errorMessage" header="Error" [message]="errorMessage" [buttons]="['OK']"></ion-alert>
 </ion-content>

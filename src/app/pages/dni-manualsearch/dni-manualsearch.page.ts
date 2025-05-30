@@ -10,67 +10,104 @@ const { AndroidId } = Plugins;
   styleUrls: ['./dni-manualsearch.page.scss'],
 })
 export class DniManualsearchPage implements OnInit {
-
-
-  ngOnInit() {
-  }
   dni: string = '';
-  test: string = '';
-
   result: any = null;
   errorMessage: string = '';
   aId1: string | null = null;
-  errorMessag2: string | null = null;
+  ludopataMessage: string = '';
+  imagenString: string = '';
+  agravioMessage: string = '';
 
-  constructor(private dniService: DnisearchService) {}
+  constructor(
+    private dniService: DnisearchService,
+  ) {}
+
+  ngOnInit() {}
+
   async searchDni() {
     if (!this.dni || this.dni.length !== 8) {
       this.errorMessage = 'Por favor, ingrese un DNI válido de 8 dígitos.';
       return;
     }
 
+    // 👉 Limpiar datos previos antes de buscar
+    this.result = null;
+    this.errorMessage = '';
+    this.ludopataMessage = '';
+    this.agravioMessage = '';
+    this.imagenString = '';
 
-        try {
-          const resultado = await AndroidId['getAndroidId']();
-          this.aId1 = resultado.androidId;
-          this.errorMessag2 = null;
-        } catch (error) {
-          console.error('Error getting Android ID', error);
-          this.errorMessag2 = 'No se pudo obtener el Android ID.';
-          this.aId1 = null;
+    // Obtener Android ID
+    try {
+      const resultado = await AndroidId['getAndroidId']();
+      this.aId1 = resultado.androidId;
+    } catch (error) {
+      this.errorMessage = 'No se pudo obtener el Android ID.';
+    }
+
+    // Obtener información del usuario desde el token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.errorMessage = 'No se encontró el token. Inicie sesión.';
+      return;
+    }
+
+    let userId = '';
+    let nombre_user = '';
+    let apellidoPaterno_user = '';
+    let apellidoMaterno_user = '';
+    let empresa = '';
+
+    try {
+      const decodedToken: any = jwtDecode(token);
+      userId = decodedToken.user._id;
+      nombre_user = decodedToken.user.name || 'No especificado';
+      apellidoPaterno_user = decodedToken.user.paternalsurname || 'No especificado';
+      apellidoMaterno_user = decodedToken.user.maternalsurname || 'No especificado';
+      empresa = decodedToken.user.company.name || 'No especificada';
+    } catch (error) {
+      this.errorMessage = 'Error al decodificar el token.';
+      return;
+    }
+
+    // Buscar si es ludópata
+    this.dniService.buscarLudopata(this.dni).subscribe({
+      next: (response) => {
+        this.imagenString = response.datos?.imagen ?? '';  // Previene errores si no hay imagen
+        if (response.esLudopata) {
+          this.ludopataMessage = '⚠️ ¡El usuario está registrado como ludópata!';
+        } else {
+          this.ludopataMessage = '✅ El usuario no está registrado como ludópata.';
         }
-  
+      },
+      error: (error) => {
+        console.error('Error al buscar ludópata:', error);
+      },
+    });
 
-        const token = localStorage.getItem('token'); 
-        let nombre_user = '';
-        let apellidoPaterno_user = '';
-        let apellidoMaterno_user = '';
-        let empresa = '';
-        let androidId = '';
-        let userId = '';
-        if (token) {
-          try {
-            const decodedToken: any = jwtDecode(token);
-            console.log(decodedToken)
-            userId = decodedToken.user._id;
-            nombre_user = decodedToken.user.name || 'Usuario no especificado';
-            apellidoPaterno_user = decodedToken.user.paternalsurname || 'Usuario no especificado';
-            apellidoMaterno_user = decodedToken.user.maternalsurname || 'Usuario no especificado';
-            androidId = this.aId1 ?? 'ID no disponible'; 
-            empresa = decodedToken.user.company.name || 'Empresa no especificada';
-          } catch (error) {
-            console.error('Error al decodificar el token:', error);
-            this.errorMessage = 'Error al procesar la información del usuario.';
-            return;
+    // Buscar agravios
+    this.dniService.buscarAgravio(this.dni).subscribe({
+      next: (response) => {
+        if (response.tieneAgravio) {
+          if (response.datos?.tipoDeAgravio) {
+            this.agravioMessage = `⚠️ Se ha encontrado un agravio registrado en la empresa: ${response.datos.tipoDeAgravio}`;
+          } else {
+            this.agravioMessage = '⚠️ El agravio registrado no tiene un tipo de agravio definido.';
           }
         } else {
-          this.errorMessage = 'No se encontró el token. Por favor, inicie sesión.';
-          return;
+          this.agravioMessage = '';
         }
+      },
+      error: (error) => {
+        console.error('Error al buscar agravios:', error);
+      },
+    });
 
+    // Buscar DNI
     this.dniService.getDniData(this.dni).subscribe({
       next: (data) => {
-        this.result = data; // Guardar el resultado
+        this.result = data;
+
         const consulta = {
           ...data,
           userId,
@@ -78,19 +115,17 @@ export class DniManualsearchPage implements OnInit {
           apellidoPaterno_user,
           apellidoMaterno_user,
           empresa,
-          androidId,
-          tipo: 'manual', // Tipo distintivo
+          androidId: this.aId1 ?? 'ID no disponible',
+          tipo: 'manual',
         };
-        this.dniService.guardarConsulta(consulta).subscribe(
-          () => console.log('Consulta guardada exitosamente.'),
-          (error) => console.error('Error al guardar la consulta:', error)
-        );
-        this.errorMessage = ''; // Limpiar mensajes de error
+
+        this.dniService.guardarConsulta(consulta).subscribe();
+        this.errorMessage = '';
       },
       error: (error) => {
-        this.result = null; // Limpiar resultado anterior
         this.errorMessage = error.message || 'Error al buscar el DNI.';
       },
     });
   }
+
 }

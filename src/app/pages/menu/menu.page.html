@@ -4,9 +4,10 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
+<div class="ion-padding">
   <div class="logo-container">
-    <ion-img src="assets/logo.png" alt="Logo"></ion-img>
+    <ion-img src="assets/logo2.png" alt="Logo"></ion-img>
   </div>
 
   <div class="menu-buttons">
@@ -15,7 +16,7 @@
       Escaneo de código de barras
     </ion-button>
 
-    <ion-button expand="block" color="secondary" routerLink="/dni-identification">
+    <ion-button expand="block" color="secondary" routerLink="/test">
       <ion-icon slot="start" name="document-outline"></ion-icon>
       Escaneo del DNI completo
     </ion-button>
@@ -25,7 +26,8 @@
       Buscar DNI manualmente
     </ion-button>
 
-    <div class="logout-container">
+ <!-- Botón de cerrar sesión alineado igual que los anteriores -->
+    <div class="logout-button-container">
       <ion-button expand="block" color="danger" (click)="confirmLogout()">
         <ion-icon slot="start" name="log-out-outline"></ion-icon>
         Cerrar sesión
@@ -34,7 +36,7 @@
 
     
   </div>
-
+</div>
 
 
   

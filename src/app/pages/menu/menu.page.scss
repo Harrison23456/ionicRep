@@ -41,3 +41,27 @@
     width: 100%;
 
 }
+
+ion-content {
+  position: relative;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0; /* Muy importante para evitar el espacio a la derecha */
+  right: 0;
+  width: 100%; /* Asegura el 100% del ancho visible */
+  text-align: center;
+  padding: 10px;
+  font-size: 14px;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border-top: 1px solid #ddd;
+  box-sizing: border-box; /* Asegura que el padding no desborde */
+}
+
+.logout-button-container {
+  padding-top: 19rem;
+  padding-bottom: env(safe-area-inset-bottom); /* Asegura espacio en iOS */
+}
