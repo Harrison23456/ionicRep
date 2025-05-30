@@ -1,12 +1,20 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'io.ionic.starter', 
   appName: 'IdentificaPE',
   webDir: 'www',
-  server:{
-    cleartext: true, // Permitir HTTP sin cifrar (útil para desarrollo)
-
+  server: {
+    cleartext: true,
+  },
+  plugins: {
+    AppflowDeploy: {
+      appId: '2d4aa589', 
+      channel: 'Production', 
+      autoUpdateMethod: 'background', 
+      maxVersions: 2,
+      updateApi: 'https://api.ionicjs.com',
+    }
   }
 };
 
