@@ -18,7 +18,6 @@
     </ion-item>
 
     <ion-button expand="block" type="submit">Buscar</ion-button>
-
   </form>
 
   <ion-card *ngIf="result">
@@ -26,20 +25,21 @@
       <ion-card-title>Resultado</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-    <p class="texto-grande"><strong>Nombres:</strong> {{ result.nombres }}</p>
-    <p class="texto-grande"><strong>Apellido Paterno:</strong> {{ result.apellidoPaterno }}</p>
-    <p class="texto-grande"><strong>Apellido Materno:</strong> {{ result.apellidoMaterno }}</p>
-    <p class="texto-grande" *ngIf="ludopataMessage">{{ ludopataMessage }}</p>
+      <p class="texto-grande"><strong>Nombres:</strong> {{ result?.nombres || 'No disponible' }}</p>
+      <p class="texto-grande"><strong>Apellido Paterno:</strong> {{ result?.apellidoPaterno || 'No disponible' }}</p>
+      <p class="texto-grande"><strong>Apellido Materno:</strong> {{ result?.apellidoMaterno || 'No disponible' }}</p>
 
-    <div *ngIf="imagenString" style="margin-top: 20px; text-align: center;">
-      <img
-        [src]="'https://44.201.220.104.nip.io/api/' + imagenString.replace('\\', '/')"
-        alt="Foto del usuario"
-        style="max-width: 100%; height: auto; width: 300px;"
-      />
-    </div>
-  </ion-card-content>
+      <p class="texto-grande" *ngIf="ludopataMessage">{{ ludopataMessage }}</p>
+      <p class="texto-grande" *ngIf="agravioMessage">{{ agravioMessage }}</p>
 
+      <div *ngIf="imagenString" style="margin-top: 20px; text-align: center;">
+        <img
+          [src]="'https://44.201.220.104.nip.io/api/' + imagenString.replace('\\', '/')"
+          alt="Foto del usuario"
+          style="max-width: 100%; height: auto; width: 300px;"
+        />
+      </div>
+    </ion-card-content>
   </ion-card>
 
   <ion-alert *ngIf="errorMessage" header="Error" [message]="errorMessage" [buttons]="['OK']"></ion-alert>

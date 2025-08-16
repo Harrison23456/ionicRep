@@ -26,5 +26,11 @@ project(':capacitor-keyboard').projectDir = new File('../node_modules/@capacitor
 include ':capacitor-status-bar'
 project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacitor/status-bar/android')
 
+include ':microblink-blinkid-capacitor'
+project(':microblink-blinkid-capacitor').projectDir = new File('../node_modules/@microblink/blinkid-capacitor/android')
+
 include ':android-id'
 project(':android-id').projectDir = new File('../android-id/android')
+
+include ':capacitor-mlkit-ocr'
+project(':capacitor-mlkit-ocr').projectDir = new File('../node_modules/capacitor-mlkit-ocr/android')

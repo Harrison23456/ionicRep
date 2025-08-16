@@ -40,6 +40,8 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    implementation project(':capacitor-blinkid') // Esta línea es crucial
+    implementation "com.microblink:blinkid:5.16.0" // Usa la versión más reciente
 }
 
 apply from: 'capacitor.build.gradle'

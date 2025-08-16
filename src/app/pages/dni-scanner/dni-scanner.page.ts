@@ -14,32 +14,27 @@ const { AndroidId } = Plugins;
 })
 export class DniScannerPage implements OnInit {
   scannedDni: string | null = null;
-  scannedData: any = null; // Almacena los datos obtenidos de la API
+  scannedData: any = null;
   loading: boolean = false;
   errorMessage: string | null = null;
   aId1: string | null = null;
-  errorMessag2: string | null = null;
-  esLudopata: boolean | null = null; // Para almacenar si es ludópata
-  ludopataMessage: any;
-  agravioMessage: any;
+  ludopataMessage: string = '';
+  agravioMessage: string = '';
   imagenString: string = '';
+  esLudopata: boolean = false;
 
   constructor(private dniSearchService: DnisearchService) {}
 
   ngOnInit(): void {
     this.installGoogleModule();
     this.scanBarcode();
-
   }
 
   async installGoogleModule() {
     try {
       await BarcodeScanner.installGoogleBarcodeScannerModule();
     } catch (error) {
-      console.error(
-        'Error al instalar el módulo de Google Barcode Scanner:',
-        error
-      );
+      console.error('Error al instalar el módulo de Google Barcode Scanner:', error);
     }
   }
 
@@ -51,7 +46,9 @@ export class DniScannerPage implements OnInit {
         this.scannedDni = this.extractDni(barcodeData || '');
 
         if (this.scannedDni) {
-          this.fetchDniData(this.scannedDni);
+          this.loading = true;
+          await this.buscarDniConLogicaLocalYApi(this.scannedDni);
+          this.loading = false;
         } else {
           this.errorMessage = 'No se detectó un número de DNI válido.';
         }
@@ -70,53 +67,102 @@ export class DniScannerPage implements OnInit {
     return match ? match[0] : null;
   }
 
-  async fetchDniData(dni: string) {
-    this.loading = true;
+  async buscarDniConLogicaLocalYApi(dni: string) {
+    this.errorMessage = '';
+    this.ludopataMessage = '';
+    this.agravioMessage = '';
+    this.imagenString = '';
+    this.esLudopata = false;
     this.scannedData = null;
-    this.errorMessage = null;
-    this.esLudopata = null;
 
-    // Obtener el Android ID
+    // Obtener Android ID
     try {
       const resultado = await AndroidId['getAndroidId']();
       this.aId1 = resultado.androidId;
-      this.errorMessag2 = null;
     } catch (error) {
-      console.error('Error obteniendo el Android ID', error);
-      this.errorMessag2 = 'No se pudo obtener el Android ID.';
-      this.aId1 = null;
+      this.errorMessage = 'No se pudo obtener el Android ID.';
+      console.error(error);
+      return;
     }
 
-    // Obtener el token del usuario
+    // Obtener info del token
     const token = localStorage.getItem('token');
+    if (!token) {
+      this.errorMessage = 'No se encontró el token. Inicie sesión.';
+      return;
+    }
+
+    let userId = '';
     let nombre_user = '';
     let apellidoPaterno_user = '';
     let apellidoMaterno_user = '';
     let empresa = '';
-    let androidId = this.aId1 ?? 'ID no disponible';
-    let userId = '';
 
-    if (token) {
-      try {
-        const decodedToken: any = jwtDecode(token);
-        userId = decodedToken.user._id;
-        nombre_user = decodedToken.user.name || 'Usuario no especificado';
-        apellidoPaterno_user = decodedToken.user.paternalsurname || 'Usuario no especificado';
-        apellidoMaterno_user = decodedToken.user.maternalsurname || 'Usuario no especificado';
-        empresa = decodedToken.user.company.name || 'Empresa no especificada';
-      } catch (error) {
-        console.error('Error al decodificar el token:', error);
-        this.errorMessage = 'Error al procesar la información del usuario.';
-        return;
-      }
-    } else {
-      this.errorMessage = 'No se encontró el token. Por favor, inicie sesión.';
+    try {
+      const decodedToken: any = jwtDecode(token);
+      userId = decodedToken.user._id;
+      nombre_user = decodedToken.user.name || 'No especificado';
+      apellidoPaterno_user = decodedToken.user.paternalsurname || 'No especificado';
+      apellidoMaterno_user = decodedToken.user.maternalsurname || 'No especificado';
+      empresa = decodedToken.user.company.name || 'No especificada';
+    } catch (error) {
+      this.errorMessage = 'Error al decodificar el token.';
       return;
     }
 
-    // Buscar datos del DNI
+    // Buscar en base local primero
+    this.dniSearchService.buscarLudopata(dni).subscribe({
+      next: (response) => {
+        if (response?.esLudopata && response.datos) {
+          const datos = response.datos;
+          this.scannedData = {
+            dni: datos.dni,
+            nombres: datos.nombre || 'No disponible',
+            apellidoPaterno: datos.apellidoPaterno || 'No disponible',
+            apellidoMaterno: datos.apellidoMaterno || 'No disponible',
+          };
+          this.imagenString = datos.imagen?.replace(/\\/g, '/') ?? '';
+          this.esLudopata = true;
+          this.ludopataMessage = '✅ ¡El usuario está registrado como ludópata en base local!';
+        } else {
+          this.esLudopata = false;
+          this.ludopataMessage = '⚠️ El usuario NO está registrado como ludópata en la base local.';
+          this.buscarEnApi(dni, userId, nombre_user, apellidoPaterno_user, apellidoMaterno_user, empresa);
+        }
+      },
+      error: (error) => {
+        this.errorMessage = 'Error al buscar en la base de datos local.';
+        console.error(error);
+      },
+    });
+
+    // Buscar agravios (independiente)
+    this.dniSearchService.buscarAgravio(dni).subscribe({
+      next: (response) => {
+        if (response.tieneAgravio && response.datos?.tipoDeAgravio) {
+          this.agravioMessage = `⚠️ Se ha encontrado un agravio registrado en la empresa: ${response.datos.tipoDeAgravio}`;
+        } else {
+          this.agravioMessage = '';
+        }
+      },
+      error: (error) => {
+        console.error('Error al buscar agravios:', error);
+      },
+    });
+  }
+
+  buscarEnApi(
+    dni: string,
+    userId: string,
+    nombre_user: string,
+    apellidoPaterno_user: string,
+    apellidoMaterno_user: string,
+    empresa: string
+  ) {
     this.dniSearchService.getDniData(dni).subscribe({
       next: (data) => {
+        this.scannedData = data;
+
         const consulta = {
           ...data,
           userId,
@@ -124,52 +170,19 @@ export class DniScannerPage implements OnInit {
           apellidoPaterno_user,
           apellidoMaterno_user,
           empresa,
+          androidId: this.aId1 ?? 'ID no disponible',
           tipo: 'barcode',
-          androidId,
         };
 
-        this.scannedData = data;
         this.dniSearchService.guardarConsulta(consulta).subscribe(
           () => console.log('Consulta guardada exitosamente.'),
           (error) => console.error('Error al guardar la consulta:', error)
         );
 
-        // Buscar si el DNI pertenece a un ludópata
-        this.dniSearchService.buscarLudopata(dni).subscribe({
-          next: (response) => {
-            this.imagenString = response.datos.imagen;
-            console.log('Respuesta de buscarLudopata:', response); // Verifica la respuesta real de la API
-            if (response.esLudopata) {
-              this.ludopataMessage = '⚠️ ¡El usuario está registrado como ludópata!';
-            } else {
-              this.ludopataMessage = '✅ El usuario no está registrado como ludópata.';
-            }
-          },
-          error: (error) => {
-            console.error('Error al buscar ludópata:', error);
-          },
-        });
-        
-
-        this.dniSearchService.buscarAgravio(dni).subscribe({
-          next: (response) => {
-            if (response.datos) {
-              this.agravioMessage = `⚠️ El usuario tiene un agravio registrado: ${response.datos.tipoDeAgravio}`;
-            } else {
-              this.agravioMessage = '';
-            }
-          },
-          error: (error) => {
-            console.error('Error al buscar ludópata:', error);
-          },
-        });
-
-
-        this.loading = false;
+        this.errorMessage = '';
       },
       error: (error) => {
-        this.errorMessage = error.message || 'Error al obtener los datos.';
-        this.loading = false;
+        this.errorMessage = error.message || 'Error al buscar el DNI.';
       },
     });
   }

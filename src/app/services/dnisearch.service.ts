@@ -42,6 +42,13 @@ export class DnisearchService {
     return this.http.get<any>(`${this.baseUrl}/soloagravio/${dni}`, { headers });
   }
   
-  
+  buscarLudopataLocal(dni: string): Observable<any> {
+  return this.http.get<any>(`${this.API_URL}/check-local-ludopata/${dni}`);
+}
+
+
+  enviarDatosDni(dniData: any) {
+    return this.http.post(`${this.API_URL}/check-local-ludopata/`, { dniData });
+  }
 }
 

@@ -17,10 +17,9 @@ export class DniManualsearchPage implements OnInit {
   ludopataMessage: string = '';
   imagenString: string = '';
   agravioMessage: string = '';
+  isLudopataLocal: boolean = false;
 
-  constructor(
-    private dniService: DnisearchService,
-  ) {}
+  constructor(private dniService: DnisearchService) {}
 
   ngOnInit() {}
 
@@ -30,12 +29,13 @@ export class DniManualsearchPage implements OnInit {
       return;
     }
 
-    // 👉 Limpiar datos previos antes de buscar
+    // Limpiar estado anterior
     this.result = null;
     this.errorMessage = '';
     this.ludopataMessage = '';
     this.agravioMessage = '';
     this.imagenString = '';
+    this.isLudopataLocal = false;
 
     // Obtener Android ID
     try {
@@ -45,7 +45,7 @@ export class DniManualsearchPage implements OnInit {
       this.errorMessage = 'No se pudo obtener el Android ID.';
     }
 
-    // Obtener información del usuario desde el token
+    // Obtener info del token
     const token = localStorage.getItem('token');
     if (!token) {
       this.errorMessage = 'No se encontró el token. Inicie sesión.';
@@ -70,22 +70,38 @@ export class DniManualsearchPage implements OnInit {
       return;
     }
 
-    // Buscar si es ludópata
     this.dniService.buscarLudopata(this.dni).subscribe({
       next: (response) => {
-        this.imagenString = response.datos?.imagen ?? '';  // Previene errores si no hay imagen
-        if (response.esLudopata) {
-          this.ludopataMessage = '⚠️ ¡El usuario está registrado como ludópata!';
+        console.log('Respuesta de buscarLudopata:', response);
+
+        if (response?.esLudopata && response.datos) {
+          const datos = response.datos;
+
+          this.result = {
+            dni: datos.dni,
+            nombres: datos.nombre || 'No disponible',
+            apellidoPaterno: datos.apellidoPaterno || 'No disponible',
+            apellidoMaterno: datos.apellidoMaterno || 'No disponible'
+          };
+
+          this.imagenString = datos.imagen?.replace(/\\/g, '/') ?? '';
+          this.isLudopataLocal = true;
+          this.ludopataMessage = '✅ ¡El usuario está registrado como ludópata en base local!';
         } else {
-          this.ludopataMessage = '✅ El usuario no está registrado como ludópata.';
+          this.isLudopataLocal = false;
+          this.ludopataMessage = '⚠️ El usuario NO está registrado como ludópata en la base local.';
+          this.buscarEnApi(userId, nombre_user, apellidoPaterno_user, apellidoMaterno_user, empresa);
         }
+
       },
       error: (error) => {
-        console.error('Error al buscar ludópata:', error);
-      },
+        this.errorMessage = 'Error al buscar en la base de datos local.';
+        console.error(error);
+      }
     });
 
-    // Buscar agravios
+
+    // Buscar agravios (independiente)
     this.dniService.buscarAgravio(this.dni).subscribe({
       next: (response) => {
         if (response.tieneAgravio) {
@@ -102,8 +118,9 @@ export class DniManualsearchPage implements OnInit {
         console.error('Error al buscar agravios:', error);
       },
     });
+  }
 
-    // Buscar DNI
+  buscarEnApi(userId: string, nombre_user: string, apellidoPaterno_user: string, apellidoMaterno_user: string, empresa: string) {
     this.dniService.getDniData(this.dni).subscribe({
       next: (data) => {
         this.result = data;
@@ -124,8 +141,7 @@ export class DniManualsearchPage implements OnInit {
       },
       error: (error) => {
         this.errorMessage = error.message || 'Error al buscar el DNI.';
-      },
+      }
     });
   }
-
 }
